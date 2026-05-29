@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DECA Shirt Pricing Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#16294b; --navy2:#22386a; --navy-deep:#0e1b33;
+    --steel:#5b6b86; --silver:#c5cbd6; --line:#d6dbe4; --mist:#eef1f6;
+    --ink:#121417; --bg:#e7eaf0; --white:#fff; --shadow:rgba(20,40,75,.16);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:"IBM Plex Sans",sans-serif;color:var(--ink);
+    background:
+      repeating-linear-gradient(135deg, rgba(22,41,75,.025) 0 2px, transparent 2px 22px),
+      radial-gradient(1200px 500px at 80% -10%, rgba(34,56,106,.10), transparent 60%),
+      var(--bg);
+    min-height:100vh;line-height:1.45;padding-bottom:48px;
+  }
+  .cap{font-family:"Saira Condensed",sans-serif;text-transform:uppercase;letter-spacing:.04em}
+
+  /* ---- Banner ---- */
+  header{
+    background:var(--navy);color:#fff;position:relative;overflow:hidden;
+    border-bottom:3px solid var(--silver);
+  }
+  header::before{content:"";position:absolute;inset:0;
+    background:repeating-linear-gradient(135deg, rgba(255,255,255,.05) 0 2px, transparent 2px 16px);
+    pointer-events:none;}
+  .banner{max-width:1080px;margin:0 auto;padding:26px 24px 24px;position:relative;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
+  header h1{font-family:"Saira Condensed",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.03em;font-size:clamp(28px,5vw,46px);line-height:.95}
+  header h1 .thin{font-weight:500;color:var(--silver)}
+  header p{color:#c7d0e0;font-size:14px;margin-top:6px;max-width:520px}
+  .stripe{height:8px;background:linear-gradient(90deg,var(--silver) 0 33%,var(--navy-deep) 33% 66%,var(--silver) 66% 100%)}
+
+  main{max-width:1080px;margin:28px auto 0;padding:0 24px;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+  @media(max-width:860px){main{grid-template-columns:1fr}}
+
+  .card{background:var(--white);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px -18px var(--shadow);overflow:hidden}
+  .card-h{background:var(--mist);border-bottom:1px solid var(--line);padding:13px 20px;display:flex;align-items:center;gap:10px}
+  .card-h h2{font-family:"Saira Condensed",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-size:19px;color:var(--navy)}
+  .tag{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--steel);border:1px solid var(--silver);border-radius:20px;padding:2px 10px}
+  .card-b{padding:20px}
+
+  /* ---- Segmented toggle ---- */
+  .seg{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1.5px solid var(--navy);border-radius:8px;overflow:hidden;margin-bottom:20px}
+  .seg button{font-family:"Saira Condensed",sans-serif;text-transform:uppercase;letter-spacing:.05em;font-weight:600;font-size:15px;padding:12px 8px;background:var(--white);color:var(--navy);border:none;cursor:pointer;transition:all .15s}
+  .seg button+button{border-left:1.5px solid var(--navy)}
+  .seg button.on{background:var(--navy);color:#fff}
+  .seg button:not(.on):hover{background:var(--mist)}
+
+  .grp-title{font-family:"Saira Condensed",sans-serif;text-transform:uppercase;letter-spacing:.06em;font-weight:600;font-size:13px;color:var(--steel);margin:18px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-family:"Saira Condensed",sans-serif;text-transform:uppercase;letter-spacing:.04em;font-weight:600;font-size:13px;color:var(--ink);margin-bottom:5px}
+  .field .hint{font-family:"IBM Plex Sans",sans-serif;text-transform:none;letter-spacing:0;font-weight:400;font-size:11.5px;color:var(--steel);display:block;margin-top:2px}
+  .inp{position:relative}
+  .inp .pre{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--steel);font-family:"IBM Plex Mono",monospace;font-size:14px}
+  input[type=text],input[type=number]{
+    width:100%;font-family:"IBM Plex Mono",monospace;font-size:15px;color:var(--ink);
+    padding:11px 12px;border:1px solid var(--silver);border-radius:7px;background:var(--white);transition:border .15s,box-shadow .15s;
+  }
+  input.money{padding-left:26px}
+  input:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(22,41,75,.13)}
+  input::placeholder{color:#aab2c0}
+  input[name=order]{font-family:"IBM Plex Sans",sans-serif}
+
+  /* ---- Readout ---- */
+  .readout{background:var(--navy);color:#fff;border-radius:10px;padding:22px 22px 18px;position:relative;overflow:hidden}
+  .readout::after{content:"";position:absolute;right:-30px;top:-30px;width:140px;height:140px;border:14px solid rgba(255,255,255,.05);border-radius:50%}
+  .readout .lab{font-family:"Saira Condensed",sans-serif;text-transform:uppercase;letter-spacing:.12em;font-size:13px;color:var(--silver)}
+  .price{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:clamp(48px,9vw,68px);line-height:1;margin:2px 0 4px;letter-spacing:-.01em}
+  .price small{font-size:.4em;color:var(--silver);vertical-align:super;font-weight:500}
+  .readout .sub{font-size:12.5px;color:#c7d0e0;font-family:"IBM Plex Mono",monospace}
+
+  .lines{margin-top:18px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .ln{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;font-size:13.5px}
+  .ln:nth-child(odd){background:var(--mist)}
+  .ln .k{color:var(--steel)}
+  .ln .k b{color:var(--ink);font-weight:600}
+  .ln .v{font-family:"IBM Plex Mono",monospace;font-weight:600;color:var(--ink);font-size:14px}
+  .ln.base{border-top:1px solid var(--silver)}
+  .ln.profit .v{color:var(--navy)}
+
+  .btn{font-family:"Saira Condensed",sans-serif;text-transform:uppercase;letter-spacing:.05em;font-weight:600;font-size:15px;border-radius:8px;padding:12px 16px;cursor:pointer;border:1.5px solid var(--navy);transition:all .15s}
+  .btn-primary{background:var(--navy);color:#fff;width:100%;margin-top:18px}
+  .btn-primary:hover{background:var(--navy-deep)}
+  .btn-ghost{background:var(--white);color:var(--navy)}
+  .btn-ghost:hover{background:var(--mist)}
+
+  /* ---- Roster ---- */
+  .roster .card-b{padding:14px 16px 18px}
+  .empty{color:var(--steel);font-size:13.5px;text-align:center;padding:22px 10px;font-style:italic}
+  .row{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:11px 12px;border:1px solid var(--line);border-radius:8px;margin-bottom:9px;background:var(--white)}
+  .row .nm{font-weight:600;font-size:14px}
+  .row .meta{font-size:11.5px;color:var(--steel);font-family:"IBM Plex Mono",monospace;margin-top:1px}
+  .row .pr{font-family:"IBM Plex Mono",monospace;font-weight:600;color:var(--navy);font-size:16px;text-align:right}
+  .row .pr small{display:block;font-size:10.5px;color:var(--steel);font-weight:500}
+  .row .x{border:none;background:none;color:var(--silver);font-size:20px;cursor:pointer;line-height:1;padding:2px 4px;border-radius:5px}
+  .row .x:hover{color:#b23b3b;background:var(--mist)}
+  .rtot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:13px;border-top:2px solid var(--navy)}
+  .rtot .l{font-family:"Saira Condensed",sans-serif;text-transform:uppercase;letter-spacing:.05em;font-weight:600;color:var(--navy)}
+  .rtot .n{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:18px;color:var(--navy)}
+  .roster-actions{display:flex;gap:10px;margin-top:14px}
+  .roster-actions .btn{flex:1}
+
+  footer{max-width:1080px;margin:26px auto 0;padding:0 24px;color:var(--steel);font-size:12px;text-align:center}
+
+  @media print{
+    body{background:#fff}
+    header::before,.seg,.btn,.card.input-card{display:none}
+    main{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="banner">
+    <div>
+      <h1>Shirt Pricing <span class="thin">Calculator</span></h1>
+      <p>Pick the method, type in the numbers. The price builds itself and rounds up to the nearest $5.</p>
+    </div>
+  </div>
+  <div class="stripe"></div>
+</header>
+
+<main>
+  <!-- INPUT CARD -->
+  <section class="card input-card">
+    <div class="card-h"><h2>Build an Order</h2><span class="tag" id="methodTag">SCREEN PRINT</span></div>
+    <div class="card-b">
+      <div class="seg">
+        <button id="mScreen" class="on" onclick="setMethod('screen')">Screen Print</button>
+        <button id="mPress" onclick="setMethod('press')">Press-On (DTF)</button>
+      </div>
+
+      <div class="field">
+        <label>Order name <span class="hint">e.g. House Tees, Basketball</span></label>
+        <input type="text" name="order" id="order" placeholder="Order name" oninput="calc()">
+      </div>
+
+      <div class="field">
+        <label>Number of shirts <span class="hint">House shirts? Guess low — 5 or 10.</span></label>
+        <input type="number" id="shirts" min="1" step="1" value="15" oninput="calc()">
+      </div>
+      <div class="field">
+        <label>Blank cost per item<span class="hint">the shirt / hoodie / etc. itself</span></label>
+        <div class="inp"><span class="pre">$</span><input type="number" class="money" id="blank" min="0" step="0.01" value="4" oninput="calc()"></div>
+      </div>
+
+      <!-- Screen print group -->
+      <div id="grpScreen">
+        <div class="grp-title">Screen Print supplies (one-time)</div>
+        <div class="field">
+          <label>Screens — total<span class="hint">x-tool packs of 4, ~$6 per screen</span></label>
+          <div class="inp"><span class="pre">$</span><input type="number" class="money" id="screens" min="0" step="0.01" value="6" oninput="calc()"></div>
+        </div>
+        <div class="field">
+          <label>Ink — total<span class="hint">~$35 / bucket (+$20 extra bucket)</span></label>
+          <div class="inp"><span class="pre">$</span><input type="number" class="money" id="ink" min="0" step="0.01" value="35" oninput="calc()"></div>
+        </div>
+      </div>
+
+      <!-- Press-on group -->
+      <div id="grpPress" style="display:none">
+        <div class="grp-title">Press-On transfers (per shirt)</div>
+        <div class="field">
+          <label>Front transfer — per shirt</label>
+          <div class="inp"><span class="pre">$</span><input type="number" class="money" id="front" min="0" step="0.01" value="3.50" oninput="calc()"></div>
+        </div>
+        <div class="field">
+          <label>Back transfer — per shirt<span class="hint">0 if front-only. Single-sheet trick: combined cost on Front, 0 on Back.</span></label>
+          <div class="inp"><span class="pre">$</span><input type="number" class="money" id="back" min="0" step="0.01" value="1.50" oninput="calc()"></div>
+        </div>
+        <div class="field">
+          <label>ProWorld / Jiffy setup fee — total<span class="hint">one-time; 0 if none</span></label>
+          <div class="inp"><span class="pre">$</span><input type="number" class="money" id="pw" min="0" step="0.01" value="0" oninput="calc()"></div>
+        </div>
+      </div>
+
+      <div class="grp-title">Fees (fixed)</div>
+      <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div>
+          <label style="margin-bottom:5px;display:block">DECA fee</label>
+          <div class="inp"><span class="pre">$</span><input type="number" class="money" id="deca" min="0" step="0.01" value="5" oninput="calc()"></div>
+        </div>
+        <div>
+          <label style="margin-bottom:5px;display:block">Class fee</label>
+          <div class="inp"><span class="pre">$</span><input type="number" class="money" id="cls" min="0" step="0.01" value="1" oninput="calc()"></div>
+        </div>
+      </div>
+
+      <div class="grp-title">Sold (optional — for profit)</div>
+      <div class="field" style="margin-bottom:0">
+        <label>Number actually sold<span class="hint">fill in once order forms come back</span></label>
+        <input type="number" id="sold" min="0" step="1" placeholder="0" oninput="calc()">
+      </div>
+
+      <button class="btn btn-primary" onclick="addOrder()">+ Add to roster</button>
+    </div>
+  </section>
+
+  <!-- RESULTS + ROSTER -->
+  <div>
+    <section class="card" style="margin-bottom:24px">
+      <div class="card-h"><h2>Price</h2><span class="tag" id="modeTag">live</span></div>
+      <div class="card-b">
+        <div class="readout">
+          <div class="lab">Selling price · per shirt</div>
+          <div class="price" id="price">$15</div>
+          <div class="sub" id="roundNote">base $12.73 → rounded up to $15</div>
+        </div>
+        <div class="lines">
+          <div class="ln"><span class="k">One-time cost &divide; shirts</span><span class="v" id="oOne">$2.73</span></div>
+          <div class="ln"><span class="k">Transfers (per shirt)</span><span class="v" id="oTrans">$0.00</span></div>
+          <div class="ln"><span class="k">Blank item</span><span class="v" id="oBlank">$4.00</span></div>
+          <div class="ln"><span class="k">DECA + class fees</span><span class="v" id="oFees">$6.00</span></div>
+          <div class="ln base"><span class="k"><b>Base cost per shirt</b></span><span class="v" id="oBase">$12.73</span></div>
+          <div class="ln profit"><span class="k"><b>Profit per shirt</b> <span style="color:var(--steel)">(+ $6 fees back)</span></span><span class="v" id="oProfit">$8.27</span></div>
+          <div class="ln profit"><span class="k"><b>Total profit</b> <span id="soldLbl" style="color:var(--steel)"></span></span><span class="v" id="oTotal">$0.00</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card roster">
+      <div class="card-h"><h2>Order Roster</h2><span class="tag" id="rosterCount">0 orders</span></div>
+      <div class="card-b">
+        <div id="rosterList"><div class="empty">No orders yet — build one and tap &ldquo;Add to roster.&rdquo;</div></div>
+        <div class="rtot" id="rtot" style="display:none">
+          <span class="l">Projected profit (all orders)</span>
+          <span class="n" id="rtotN">$0</span>
+        </div>
+        <div class="roster-actions" id="rActions" style="display:none">
+          <button class="btn btn-ghost" onclick="window.print()">Print roster</button>
+          <button class="btn btn-ghost" onclick="clearRoster()">Clear all</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  Built for DECA chapter shirt pricing · Supplies + $6, rounded up to the nearest $5.<br>
+  Orders are held in this browser tab only — refreshing clears the roster (use Print to keep a copy).
+</footer>
+
+<script>
+  let method = "screen";
+  let roster = [];
+
+  const $ = id => document.getElementById(id);
+  const num = id => { const v = parseFloat($(id).value); return isNaN(v) ? 0 : v; };
+  const money = n => "$" + n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+  const whole = n => "$" + Math.round(n).toLocaleString("en-US");
+
+  function setMethod(m){
+    method = m;
+    $("mScreen").classList.toggle("on", m==="screen");
+    $("mPress").classList.toggle("on", m==="press");
+    $("grpScreen").style.display = m==="screen" ? "" : "none";
+    $("grpPress").style.display  = m==="press"  ? "" : "none";
+    $("methodTag").textContent = m==="screen" ? "SCREEN PRINT" : "PRESS-ON";
+    calc();
+  }
+
+  function compute(){
+    const shirts = num("shirts"), blank = num("blank"), deca = num("deca"), cls = num("cls");
+    const oneTimeTotal = method==="screen" ? (num("screens")+num("ink")) : num("pw");
+    const oneTimePer = shirts>0 ? oneTimeTotal/shirts : 0;
+    const transfers = method==="screen" ? 0 : (num("front")+num("back"));
+    const supplies = oneTimePer + transfers + blank;
+    const base = supplies + deca + cls;
+    const price = base>0 ? Math.ceil(base/5)*5 : 0;
+    const profitPer = price>0 ? price - base + deca + cls : 0;
+    const sold = num("sold");
+    return {shirts,blank,deca,cls,oneTimePer,transfers,base,price,profitPer,sold,total:profitPer*sold};
+  }
+
+  function calc(){
+    const r = compute();
+    $("price").textContent = r.price>0 ? whole(r.price) : "$0";
+    $("roundNote").textContent = r.base>0 ? `base ${money(r.base)} \u2192 rounded up to ${whole(r.price)}` : "enter your numbers";
+    $("oOne").textContent = money(r.oneTimePer);
+    $("oTrans").textContent = money(r.transfers);
+    $("oBlank").textContent = money(r.blank);
+    $("oFees").textContent = money(r.deca + r.cls);
+    $("oBase").textContent = money(r.base);
+    $("oProfit").textContent = money(r.profitPer);
+    $("oTotal").textContent = money(r.total);
+    $("soldLbl").textContent = r.sold>0 ? `(${r.sold} sold)` : "";
+  }
+
+  function addOrder(){
+    const r = compute();
+    if(r.price<=0){ return; }
+    const name = $("order").value.trim() || (method==="screen"?"Screen-print order":"Press-on order");
+    roster.push({
+      name, method: method==="screen"?"Screen Print":"Press-On",
+      shirts:r.shirts, price:r.price, sold:r.sold, profitPer:r.profitPer, total:r.total
+    });
+    $("order").value = "";
+    renderRoster();
+  }
+
+  function removeOrder(i){ roster.splice(i,1); renderRoster(); }
+  function clearRoster(){ roster = []; renderRoster(); }
+
+  function renderRoster(){
+    const list = $("rosterList");
+    $("rosterCount").textContent = roster.length + (roster.length===1?" order":" orders");
+    if(roster.length===0){
+      list.innerHTML = '<div class="empty">No orders yet — build one and tap &ldquo;Add to roster.&rdquo;</div>';
+      $("rtot").style.display="none"; $("rActions").style.display="none"; return;
+    }
+    list.innerHTML = roster.map((o,i)=>`
+      <div class="row">
+        <div>
+          <div class="nm">${esc(o.name)}</div>
+          <div class="meta">${o.method} \u00b7 ${o.shirts} shirts${o.sold>0?` \u00b7 ${o.sold} sold`:""}</div>
+        </div>
+        <div class="pr">${whole(o.price)}<small>${o.sold>0?money(o.total)+" profit":"each"}</small></div>
+        <button class="x" title="Remove" onclick="removeOrder(${i})">\u00d7</button>
+      </div>`).join("");
+    const tot = roster.reduce((s,o)=>s+o.total,0);
+    $("rtotN").textContent = money(tot);
+    $("rtot").style.display = tot>0 ? "flex" : "none";
+    $("rActions").style.display = "flex";
+  }
+
+  function esc(s){ return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+  calc();
+</script>
+</body>
+</html>
